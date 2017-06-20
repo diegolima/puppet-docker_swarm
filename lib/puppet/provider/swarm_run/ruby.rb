@@ -55,10 +55,11 @@ Puppet::Type.type(:swarm_run).provide(:ruby) do
 
   def docker_run  
     name = (resource[:name])
+    hostname = (resource[:hostname])
     image = (resource[:image])
-    volume = (resource[:volumes])
     volume_driver = (resource[:volume_driver])
     volumes_from = (resource[:volumes_from])
+    volumes_option = resource[:volumes].map { |v| "-v #{v}" }.join(" ")
     network = (resource[:network])
     log_driver = (resource[:log_driver])
     log_opt = (resource[:log_opt])
@@ -77,12 +78,10 @@ Puppet::Type.type(:swarm_run).provide(:ruby) do
     container_extra_parameter.each do |c|
       extra_parameter << c + ' '
     end
-    run = ['-H', "tcp://#{interface}:2376", 'run', '-v', "#{volume}", '--volume-driver=', "#{volume_driver}",
+    run = ['-H', "tcp://#{interface}:2376", 'run', volumes_option, '--volume-driver=', "#{volume_driver}",
          '--volumes-from=', "#{volumes_from}", '--link', "#{link}", '--log-driver=', "#{log_driver}", '--log-opt=', "#{log_opt}", 
-         '--label=', "#{label}", env, extra_parameter, '--net=', "#{network}", ports, '-d', '--name', "#{name}", "#{image}", "#{command}",]
+         '--label=', "#{label}", env, extra_parameter, '--net=', "#{network}", ports, '-d', '--name', "#{name}", '--hostname', "#{hostname}", "#{image}", "#{command}",]
 
-    if volume.to_s.strip.length == 0 then run.delete("-v")
-      end 
     if volume_driver.to_s.strip.length == 0 then run.delete("--volume-driver=")
       end
     if volumes_from.to_s.strip.length == 0 then run.delete("--volumes-from=")

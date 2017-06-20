@@ -25,6 +25,10 @@ Puppet::Type.newtype(:swarm_run) do
     newparam(:image) do
       desc "Docker image to pull"
     end
+
+    newparam(:hostname) do
+      desc "Hostname"
+    end
     
     newparam(:volumes) do
       desc "Bind mount a volume"
